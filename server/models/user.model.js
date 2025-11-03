@@ -1,22 +1,13 @@
 import mongoose from "mongoose";
-import jwt from "jsonwebtoken";
 
 const userSchema = new mongoose.Schema(
   {
-    fullname: {
-      firstname: {
-        type: String,
-        required: true,
-        trim: true,
-        minLength: [3, "First name must be at least 3 characters long"],
-        maxLength: [30, "First name must be at most 30 characters long"],
-      },
-      lastname: {
-        type: String,
-        trim: true,
-        minLength: [3, "Last name must be at least 3 characters long"],
-        maxLength: [30, "Last name must be at most 30 characters long"],
-      },
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+      minLength: [3, "Name must be at least 3 characters long"],
+      maxLength: [50, "Name must be at most 50 characters long"],
     },
     email: {
       type: String,
@@ -31,18 +22,20 @@ const userSchema = new mongoose.Schema(
       required: true,
       minLength: [6, "Password must be at least 6 characters long"],
     },
+    phone: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     role: {
       type: String,
-      enum: ["user", "admin"],
-      default: "user",
+      enum: ["customer", "provider"],
+      default: "customer",
     },
-    otp: {
-      subject: { type: String },
-      code: { type: String },
-      expiresAt: {
-        type: Date,
-      },
-      isVerified: { type: Boolean, default: false },
+    location: {
+      type: String,
+      required: true,
+      trim: true,
     },
   },
   { timestamps: true }

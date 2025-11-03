@@ -1,9 +1,28 @@
 import express from "express";
-import { authMiddleware } from "../middlewares/auth.middleware.js";
-import { getUserProfile } from "../controllers/user.controller.js";
+import { User } from "../models/user.model.js";
+import jwt from "jsonwebtoken";
 
 const userRouter = express.Router();
 
-userRouter.get("/profile", authMiddleware, getUserProfile);
+// Get user profile
+userRouter.get("/profile", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ success: false, message: "No token provided" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id).select("-password");
+    
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    res.json({ success: true, user });
+  } catch (error) {
+    res.status(401).json({ success: false, message: "Invalid token" });
+  }
+});
 
 export default userRouter;
