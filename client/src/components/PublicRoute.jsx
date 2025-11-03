@@ -6,10 +6,9 @@ import Loader from "./Loader";
 const PublicRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
 
-  if (loading) return <Loader />; // Show loader during session check
-  if (isAuthenticated) return <Navigate to="/dashboard" replace />;
+  if (loading) return <Loader />;
 
-  return children;
+  return !isAuthenticated ? children : <Navigate to="/" replace />;
 };
 
 export default PublicRoute;

@@ -8,11 +8,12 @@ import Dashboard from "./pages/Dashboard";
 import PublicRoute from "./components/PublicRoute";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
+import ForgotPassword from "./pages/ForgotPassword";
 
 const App = () => {
   return (
     <>
-      <ToastContainer 
+      <ToastContainer
         position="top-right"
         autoClose={3000}
         hideProgressBar={false}
@@ -25,15 +26,21 @@ const App = () => {
       />
 
       <Routes>
-        {/* Public Landing Page */}
         <Route path="/" element={<Home />} />
-        
-        {/* Auth Routes */}
+
         <Route
           path="/login"
           element={
             <PublicRoute>
               <Login />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/forgot-password"
+          element={
+            <PublicRoute>
+              <ForgotPassword />
             </PublicRoute>
           }
         />
@@ -45,7 +52,7 @@ const App = () => {
             </PublicRoute>
           }
         />
-        
+
         {/* Protected Routes */}
         <Route
           path="/dashboard"

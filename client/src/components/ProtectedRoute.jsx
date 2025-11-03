@@ -6,10 +6,9 @@ import Loader from "./Loader";
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
 
-  if (loading) return <Loader />; // Show loader while fetching user
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (loading) return <Loader />;
 
-  return children;
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
 export default ProtectedRoute;

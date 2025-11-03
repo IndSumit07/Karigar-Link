@@ -1,5 +1,6 @@
 import { verifyAccessToken } from "../utils/jwt.js";
 import { BlacklistToken } from "../models/blacklistToken.model.js";
+import { User } from "../models/user.model.js";
 
 export const authMiddleware = async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -19,6 +20,7 @@ export const authMiddleware = async (req, res, next) => {
       .status(401)
       .json({ success: false, message: "Invalid or expired token" });
 
-  req.user = decoded.id;
+  const user = await User.findById(decoded.id);
+  req.user = user;
   next();
 };
