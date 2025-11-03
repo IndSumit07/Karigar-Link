@@ -246,7 +246,7 @@ export const sendRegistrationSuccessEmail = async (to, userName) => {
         Explore opportunities, connect with buyers, and grow your craft with trust and transparency.
       </div>
 
-      <a href="https://karigarlink.com" class="button">Go to Dashboard</a>
+      <a href="https://karigar-link.vercel.app" class="button">Go to Dashboard</a>
     </div>
 
     <div class="footer">
