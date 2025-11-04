@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
-const Register = () => {
+export default function Register() {
   const [step, setStep] = useState(1);
   const { registerUser, verifyEmail, loading } = useAuth();
 
@@ -11,6 +11,7 @@ const Register = () => {
     lastName: "",
     email: "",
     password: "",
+    role: "customer", // default role
   });
 
   const [otp, setOtp] = useState("");
@@ -22,6 +23,7 @@ const Register = () => {
   // Step 1 - Send OTP
   const handleSubmitStep1 = async (e) => {
     e.preventDefault();
+
     const payload = {
       fullname: {
         firstname: formData.firstName,
@@ -29,7 +31,9 @@ const Register = () => {
       },
       email: formData.email,
       password: formData.password,
+      role: formData.role,
     };
+
     const data = await registerUser(payload);
 
     if (data) {
@@ -182,6 +186,52 @@ const Register = () => {
                   />
                 </div>
 
+                {/* Role dropdown */}
+                <div>
+                  <label
+                    htmlFor="role"
+                    className="block text-sm font-semibold text-gray-700 mb-2"
+                  >
+                    Select Role
+                  </label>
+
+                  {/* Custom styled select to match theme */}
+                  <div className="relative">
+                    <select
+                      id="role"
+                      name="role"
+                      value={formData.role}
+                      onChange={handleChange}
+                      className="appearance-none w-full px-4 py-3 border-3 rounded-xl text-lg focus:outline-none transition-all duration-300"
+                      style={inputStyle}
+                      onFocus={handleFocus}
+                      onBlur={handleBlur}
+                    >
+                      <option value="customer">Customer</option>
+                      <option value="provider">Provider</option>
+                    </select>
+
+                    {/* Chevron icon (pure CSS) */}
+                    <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center">
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M6 9l6 6 6-6"
+                          stroke="#7a5a2f"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
                 <button
                   type="submit"
                   disabled={loading}
@@ -301,6 +351,4 @@ const Register = () => {
       </div>
     </div>
   );
-};
-
-export default Register;
+}

@@ -31,8 +31,8 @@ const pendingUserSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["user", "admin"],
-    default: "user",
+    enum: ["customer", "provider"],
+    default: "customer",
   },
   registrationOtp: {
     type: String,

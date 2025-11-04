@@ -59,7 +59,7 @@ export const refreshAccessToken = async (req, res) => {
 
 export const register = async (req, res) => {
   try {
-    const { fullname, email, password } = req.body;
+    const { fullname, email, password, role } = req.body;
     if (!fullname || !email || !password)
       return res
         .status(400)
@@ -76,6 +76,7 @@ export const register = async (req, res) => {
       email,
       password: hashedPassword,
       registrationOtp: hashedOtp,
+      role,
     });
 
     await sendVerificationEmail(email, otp);
@@ -119,6 +120,7 @@ export const verifyRegistrationOtp = async (req, res) => {
       fullname: pendingUser.fullname,
       email: pendingUser.email,
       password: pendingUser.password,
+      role: pendingUser.role,
     });
 
     await PendingUser.deleteOne({ email });
@@ -306,12 +308,10 @@ export const resetPassword = async (req, res) => {
   try {
     const { email, newPassword } = req.body;
     if (!email || !newPassword)
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Email and new password are required",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Email and new password are required",
+      });
 
     const user = await User.findOne({ email });
     if (!user)

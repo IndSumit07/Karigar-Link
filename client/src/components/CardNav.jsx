@@ -1,155 +1,87 @@
-import { useLayoutEffect, useRef, useState } from "react";
-import { gsap } from "gsap";
+import { useEffect, useRef, useState } from "react";
 import { GoArrowUpRight } from "react-icons/go";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import "./CardNav.css";
 
-const CardNav = ({ className = "", ease = "power3.out" }) => {
+const CardNav = ({ className = "" }) => {
   const [isHamburgerOpen, setIsHamburgerOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const navRef = useRef(null);
-  const cardsRef = useRef([]);
-  const tlRef = useRef(null);
   const location = useLocation();
   const { user, logoutUser, isAuthenticated } = useAuth();
 
   const hideNavbar = ["/login", "/register"].includes(location.pathname);
 
-  // default items
-  let items = [
-    {
-      label: "Services",
-      bgColor: "rgba(245, 190, 103, 0.9)",
-      textColor: "white",
-      links: [
-        {
-          label: "Browse All Services",
-          href: "/services",
-          ariaLabel: "Browse all available services",
-        },
-        {
-          label: "Plumbing Services",
-          href: "/services/plumbing",
-          ariaLabel: "Find plumbing services",
-        },
-        {
-          label: "Electrical Work",
-          href: "/services/electrical",
-          ariaLabel: "Find electrical services",
-        },
-        {
-          label: "Home Cleaning",
-          href: "/services/cleaning",
-          ariaLabel: "Find cleaning services",
-        },
-      ],
-    },
-    {
-      label: "For Providers",
-      bgColor: "rgba(255, 255, 255, 0.95)",
-      textColor: "#f5be67",
-      links: [
-        {
-          label: "Join as Provider",
-          href: "/register",
-          ariaLabel: "Register as service provider",
-        },
-        {
-          label: "How it Works",
-          href: "/how-it-works",
-          ariaLabel: "Learn how our platform works",
-        },
-        {
-          label: "Provider Benefits",
-          href: "/benefits",
-          ariaLabel: "See provider benefits",
-        },
-        {
-          label: "Success Stories",
-          href: "/stories",
-          ariaLabel: "Read success stories",
-        },
-      ],
-    },
-    {
-      label: "Support",
-      bgColor: "rgba(245, 190, 103, 0.85)",
-      textColor: "white",
-      links: [
-        {
-          label: "Help Center",
-          href: "/help",
-          ariaLabel: "Get help and support",
-        },
-        {
-          label: "Contact Us",
-          href: "/contact",
-          ariaLabel: "Contact our team",
-        },
-        { label: "Sign In", href: "/login", ariaLabel: "Sign in to account" },
-        {
-          label: "Register",
-          href: "/register",
-          ariaLabel: "Create new account",
-        },
-      ],
-    },
-  ];
+  // Close nav when route changes
+  useEffect(() => {
+    setIsHamburgerOpen(false);
+    setIsExpanded(false);
+    const navEl = navRef.current;
+    if (navEl) {
+      navEl.style.height = "60px";
+      navEl.classList.remove("open");
+    }
+  }, [location.pathname]);
 
-  if (user?.role === "customer") {
-    items = [
+  /**
+   * Build items for each role.
+   * IMPORTANT: This function only changes logic/data, not styles — your CSS remains identical.
+   */
+  const getItemsForRole = (role) => {
+    // default items (guest / fallback)
+    const defaultItems = [
       {
         label: "Services",
         bgColor: "rgba(245, 190, 103, 0.9)",
         textColor: "white",
         links: [
           {
-            label: "Browse Services",
+            label: "Browse All Services",
             href: "/services",
-            ariaLabel: "Browse all services",
+            ariaLabel: "Browse all available services",
           },
           {
-            label: "My Bookings",
-            href: "/bookings",
-            ariaLabel: "View my bookings",
+            label: "Plumbing Services",
+            href: "/services/plumbing",
+            ariaLabel: "Find plumbing services",
           },
           {
-            label: "Book Service",
-            href: "/book-service",
-            ariaLabel: "Book new service",
+            label: "Electrical Work",
+            href: "/services/electrical",
+            ariaLabel: "Find electrical services",
           },
           {
-            label: "Service History",
-            href: "/history",
-            ariaLabel: "View service history",
+            label: "Home Cleaning",
+            href: "/services/cleaning",
+            ariaLabel: "Find cleaning services",
           },
         ],
       },
       {
-        label: "My Account",
+        label: "For Providers",
         bgColor: "rgba(255, 255, 255, 0.95)",
         textColor: "#f5be67",
         links: [
           {
-            label: "Dashboard",
-            href: "/dashboard",
-            ariaLabel: "Go to dashboard",
+            label: "Join as Provider",
+            href: "/register",
+            ariaLabel: "Register as service provider",
           },
           {
-            label: "Profile Settings",
-            href: "/profile",
-            ariaLabel: "Edit profile",
+            label: "How it Works",
+            href: "/how-it-works",
+            ariaLabel: "Learn how our platform works",
           },
           {
-            label: "Payment Methods",
-            href: "/payments",
-            ariaLabel: "Manage payments",
+            label: "Provider Benefits",
+            href: "/benefits",
+            ariaLabel: "See provider benefits",
           },
           {
-            label: "Notifications",
-            href: "/notifications",
-            ariaLabel: "View notifications",
+            label: "Success Stories",
+            href: "/stories",
+            ariaLabel: "Read success stories",
           },
         ],
       },
@@ -158,115 +90,180 @@ const CardNav = ({ className = "", ease = "power3.out" }) => {
         bgColor: "rgba(245, 190, 103, 0.85)",
         textColor: "white",
         links: [
-          { label: "Help Center", href: "/help", ariaLabel: "Get help" },
           {
-            label: "Contact Support",
+            label: "Help Center",
+            href: "/help",
+            ariaLabel: "Get help and support",
+          },
+          {
+            label: "Contact Us",
             href: "/contact",
-            ariaLabel: "Contact support",
+            ariaLabel: "Contact our team",
           },
+          { label: "Sign In", href: "/login", ariaLabel: "Sign in to account" },
           {
-            label: "Rate Services",
-            href: "/reviews",
-            ariaLabel: "Rate and review services",
-          },
-          {
-            label: "Logout",
-            href: "#",
-            ariaLabel: "Sign out",
-            onClick: logoutUser,
+            label: "Register",
+            href: "/register",
+            ariaLabel: "Create new account",
           },
         ],
       },
     ];
-  }
 
-  if (user?.role === "provider") {
-    items = [
-      {
-        label: "My Business",
-        bgColor: "rgba(245, 190, 103, 0.9)",
-        textColor: "white",
-        links: [
-          {
-            label: "Dashboard",
-            href: "/provider/dashboard",
-            ariaLabel: "Provider dashboard",
-          },
-          {
-            label: "My Services",
-            href: "/provider/services",
-            ariaLabel: "Manage services",
-          },
-          {
-            label: "Add Service",
-            href: "/provider/add-service",
-            ariaLabel: "Add new service",
-          },
-          {
-            label: "Analytics",
-            href: "/provider/analytics",
-            ariaLabel: "View analytics",
-          },
-        ],
-      },
-      {
-        label: "Bookings",
-        bgColor: "rgba(255, 255, 255, 0.95)",
-        textColor: "#f5be67",
-        links: [
-          {
-            label: "New Requests",
-            href: "/provider/requests",
-            ariaLabel: "View new requests",
-          },
-          {
-            label: "Active Jobs",
-            href: "/provider/active",
-            ariaLabel: "View active jobs",
-          },
-          {
-            label: "Completed Jobs",
-            href: "/provider/completed",
-            ariaLabel: "View completed jobs",
-          },
-          {
-            label: "Earnings",
-            href: "/provider/earnings",
-            ariaLabel: "View earnings",
-          },
-        ],
-      },
-      {
-        label: "Account",
-        bgColor: "rgba(245, 190, 103, 0.85)",
-        textColor: "white",
-        links: [
-          {
-            label: "Profile Settings",
-            href: "/provider/profile",
-            ariaLabel: "Edit profile",
-          },
-          {
-            label: "Business Info",
-            href: "/provider/business",
-            ariaLabel: "Manage business info",
-          },
-          {
-            label: "Support",
-            href: "/provider/support",
-            ariaLabel: "Get support",
-          },
-          {
-            label: "Logout",
-            href: "#",
-            ariaLabel: "Sign out",
-            onClick: logoutUser,
-          },
-        ],
-      },
-    ];
-  }
+    // CUSTOMER (buyer) - show RFQ creation, browsing, my-rfqs, suppliers, samples
+    if (role === "customer") {
+      return [
+        {
+          label: "Sourcing",
+          bgColor: "rgba(245, 190, 103, 0.9)",
+          textColor: "white",
+          links: [
+            { label: "Browse RFQs", href: "/rfqs", ariaLabel: "Browse RFQs" }, // public RFQ listing (buyers/providers can browse)
+            {
+              label: "Post RFQ",
+              href: "/rfq/create",
+              ariaLabel: "Create a new RFQ",
+            },
+            { label: "My RFQs", href: "/my-rfqs", ariaLabel: "View my RFQs" },
+            {
+              label: "Supplier Directory",
+              href: "/suppliers",
+              ariaLabel: "Browse verified suppliers",
+            },
+          ],
+        },
+        {
+          label: "Shopping",
+          bgColor: "rgba(255, 255, 255, 0.95)",
+          textColor: "#f5be67",
+          links: [
+            { label: "Cart", href: "/cart", ariaLabel: "View cart" },
+            {
+              label: "Sample Orders",
+              href: "/orders/samples",
+              ariaLabel: "View sample orders",
+            },
+            { label: "Orders", href: "/orders", ariaLabel: "View orders" },
+            {
+              label: "Suppliers",
+              href: "/suppliers",
+              ariaLabel: "Supplier directory",
+            },
+          ],
+        },
+        {
+          label: "Account",
+          bgColor: "rgba(245, 190, 103, 0.85)",
+          textColor: "white",
+          links: [
+            {
+              label: "Dashboard",
+              href: "/dashboard",
+              ariaLabel: "Go to dashboard",
+            },
+            { label: "Profile", href: "/profile", ariaLabel: "Edit profile" },
+            {
+              label: "Notifications",
+              href: "/notifications",
+              ariaLabel: "View notifications",
+            },
+            {
+              label: "Logout",
+              href: "#",
+              ariaLabel: "Sign out",
+              onClick: logoutUser,
+            },
+          ],
+        },
+      ];
+    }
 
+    // PROVIDER (artisan) - show RFQs to bid, my bids, supplier profile management
+    if (role === "provider") {
+      return [
+        {
+          label: "Opportunities",
+          bgColor: "rgba(245, 190, 103, 0.9)",
+          textColor: "white",
+          links: [
+            {
+              label: "Browse RFQs",
+              href: "/rfqs",
+              ariaLabel: "Browse RFQs to bid on",
+            },
+            { label: "My Bids", href: "/bids/me", ariaLabel: "View your bids" },
+            {
+              label: "Manage Replies",
+              href: "/provider/replies",
+              ariaLabel: "Manage quotes and replies",
+            },
+            {
+              label: "Supplier Profile",
+              href: "/provider/profile",
+              ariaLabel: "Manage supplier profile",
+            },
+          ],
+        },
+        {
+          label: "Business",
+          bgColor: "rgba(255, 255, 255, 0.95)",
+          textColor: "#f5be67",
+          links: [
+            {
+              label: "Dashboard",
+              href: "/provider/dashboard",
+              ariaLabel: "Provider dashboard",
+            },
+            {
+              label: "My Services",
+              href: "/provider/services",
+              ariaLabel: "Manage services",
+            },
+            {
+              label: "Earnings",
+              href: "/provider/earnings",
+              ariaLabel: "View earnings",
+            },
+            {
+              label: "Analytics",
+              href: "/provider/analytics",
+              ariaLabel: "View analytics",
+            },
+          ],
+        },
+        {
+          label: "Account",
+          bgColor: "rgba(245, 190, 103, 0.85)",
+          textColor: "white",
+          links: [
+            {
+              label: "Business Info",
+              href: "/provider/business",
+              ariaLabel: "Manage business info",
+            },
+            {
+              label: "Support",
+              href: "/provider/support",
+              ariaLabel: "Get support",
+            },
+            {
+              label: "Logout",
+              href: "#",
+              ariaLabel: "Sign out",
+              onClick: logoutUser,
+            },
+          ],
+        },
+      ];
+    }
+
+    // default fallback (guest)
+    return defaultItems;
+  };
+
+  const items = getItemsForRole(user?.role);
+
+  // toggle menu
   const toggleMenu = () => {
     const navEl = navRef.current;
     if (!isExpanded) {
@@ -287,9 +284,23 @@ const CardNav = ({ className = "", ease = "power3.out" }) => {
   };
 
   const handleLinkClick = async (link) => {
+    // if the link has an onClick (like logout), call it
     if (link.onClick) {
-      await link.onClick();
-      toggleMenu();
+      try {
+        await link.onClick();
+      } catch (err) {
+        console.error("link onClick error:", err);
+      }
+    }
+    // collapse menu on mobile
+    if (window.innerWidth < 1024) {
+      const navEl = navRef.current;
+      setIsHamburgerOpen(false);
+      setIsExpanded(false);
+      if (navEl) {
+        navEl.style.height = "60px";
+        navEl.classList.remove("open");
+      }
     }
   };
 
@@ -310,6 +321,9 @@ const CardNav = ({ className = "", ease = "power3.out" }) => {
             aria-label={isExpanded ? "Close menu" : "Open menu"}
             tabIndex={0}
             style={{ color: "#f5be67" }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") toggleMenu();
+            }}
           >
             <div className="hamburger-line" />
             <div className="hamburger-line" />
@@ -326,6 +340,10 @@ const CardNav = ({ className = "", ease = "power3.out" }) => {
               to="/register"
               className="card-nav-cta-button"
               style={{ backgroundColor: "#f5be67", color: "white" }}
+              onClick={() => {
+                // collapse on mobile when clicking CTA
+                if (window.innerWidth < 1024) toggleMenu();
+              }}
             >
               Get Started
             </Link>
@@ -334,7 +352,7 @@ const CardNav = ({ className = "", ease = "power3.out" }) => {
               className="user-info"
               style={{ color: "#f5be67", fontWeight: "600" }}
             >
-              Hi, {user?.fullname?.firstname}
+              Hi, {user?.fullname?.firstname || user?.name || "User"}
             </div>
           )}
         </div>
@@ -377,6 +395,18 @@ const CardNav = ({ className = "", ease = "power3.out" }) => {
                       className="nav-card-link"
                       to={lnk.href}
                       aria-label={lnk.ariaLabel}
+                      onClick={() => {
+                        // also collapse the menu on mobile for normal links
+                        if (window.innerWidth < 1024) {
+                          const navEl = navRef.current;
+                          setIsHamburgerOpen(false);
+                          setIsExpanded(false);
+                          if (navEl) {
+                            navEl.style.height = "60px";
+                            navEl.classList.remove("open");
+                          }
+                        }
+                      }}
                     >
                       <GoArrowUpRight className="nav-card-link-icon" />
                       {lnk.label}

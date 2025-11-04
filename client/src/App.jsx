@@ -9,6 +9,10 @@ import PublicRoute from "./components/PublicRoute";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import ForgotPassword from "./pages/ForgotPassword";
+import RFQAllPage from "./pages/RFQAllPage";
+import RFQCreatePage from "./pages/RFQCreatePage";
+import MyRFQsPage from "./pages/MyRFQsPage";
+import ViewBidsPage from "./pages/ViewBidsPage";
 
 const App = () => {
   return (
@@ -59,6 +63,38 @@ const App = () => {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/rfqs"
+          element={
+            <ProtectedRoute>
+              <RFQAllPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/rfq/create"
+          element={
+            <ProtectedRoute>
+              <RFQCreatePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/my-rfqs"
+          element={
+            <ProtectedRoute>
+              <MyRFQsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/rfq/:id"
+          element={
+            <ProtectedRoute>
+              <ViewBidsPage />
             </ProtectedRoute>
           }
         />
