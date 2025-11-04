@@ -8,10 +8,10 @@ import {
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import isProvider from "../middlewares/isProvider.js";
 
-const router = express.Router();
+const bidRouter = express.Router();
 
-router.post("/", authMiddleware, isProvider, createBid);
-router.get("/me", authMiddleware, isProvider, getMyBids);
-router.put("/:bidId", authMiddleware, isProvider, updateBid);
-router.delete("/:bidId", authMiddleware, deleteBid); // delete guard inside controller
-export default router;
+bidRouter.post("/", authMiddleware, isProvider, createBid);
+bidRouter.get("/me", authMiddleware, isProvider, getMyBids);
+bidRouter.put("/:bidId", authMiddleware, isProvider, updateBid);
+bidRouter.delete("/:bidId", authMiddleware, deleteBid); // delete guard inside controller
+export default bidRouter;
