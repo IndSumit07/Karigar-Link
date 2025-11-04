@@ -1,6 +1,6 @@
 // controllers/bidController.js
 import { BID } from "../models/bids.model.js";
-import RFQ from "../models/RFQ.js";
+import { RFQ } from "../models/rfq.model.js";
 
 /**
  * Create or update a bid by provider
