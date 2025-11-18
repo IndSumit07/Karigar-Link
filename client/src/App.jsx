@@ -13,6 +13,8 @@ import RFQAllPage from "./pages/RFQAllPage";
 import RFQCreatePage from "./pages/RFQCreatePage";
 import MyRFQsPage from "./pages/MyRFQsPage";
 import ViewBidsPage from "./pages/ViewBidsPage";
+import UserProfile from "./pages/UserProfile";
+import Notifications from "./pages/Notifications";
 
 const App = () => {
   return (
@@ -35,25 +37,25 @@ const App = () => {
         <Route
           path="/login"
           element={
-            <PublicRoute>
+            
               <Login />
-            </PublicRoute>
+            
           }
         />
         <Route
           path="/forgot-password"
           element={
-            <PublicRoute>
+            
               <ForgotPassword />
-            </PublicRoute>
+            
           }
         />
         <Route
           path="/register"
           element={
-            <PublicRoute>
+            
               <Register />
-            </PublicRoute>
+            
           }
         />
 
@@ -61,41 +63,57 @@ const App = () => {
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute>
+            
               <Dashboard />
-            </ProtectedRoute>
+            
           }
         />
         <Route
           path="/rfqs"
           element={
-            <ProtectedRoute>
+            
               <RFQAllPage />
-            </ProtectedRoute>
+            
           }
         />
         <Route
           path="/rfq/create"
           element={
-            <ProtectedRoute>
+            
               <RFQCreatePage />
-            </ProtectedRoute>
+            
           }
         />
         <Route
           path="/my-rfqs"
           element={
-            <ProtectedRoute>
+            
               <MyRFQsPage />
-            </ProtectedRoute>
+            
           }
         />
         <Route
           path="/rfq/:id"
           element={
-            <ProtectedRoute>
+            
               <ViewBidsPage />
-            </ProtectedRoute>
+            
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            
+              <UserProfile />
+            
+          }
+        />
+        <Route
+          path="/notifications"
+          element={
+            
+              <Notifications />
+            
           }
         />
       </Routes>

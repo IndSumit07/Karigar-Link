@@ -1,10 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const [isVisible, setIsVisible] = useState(false);
   const { loginUser, loading } = useAuth();
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -30,9 +35,13 @@ const Login = () => {
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
 
       {/* Center Card */}
-      <div className="relative z-10 w-full max-w-md backdrop-blur-xl bg-white/95 rounded-3xl shadow-2xl border-4 border-white p-10">
+      <div className={`relative z-10 w-full max-w-md backdrop-blur-xl bg-white/95 rounded-3xl shadow-2xl border-4 border-white p-10 transition-all duration-1000 transform ${
+        isVisible ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-8 opacity-0 scale-95'
+      }`}>
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className={`text-center mb-8 transition-all duration-1000 delay-200 transform ${
+          isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+        }`}>
           <Link
             to="/"
             className="text-5xl font-extrabold tracking-tight"
@@ -44,9 +53,13 @@ const Login = () => {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className={`space-y-6 transition-all duration-1000 delay-400 transform ${
+          isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+        }`}>
           {/* Email */}
-          <div>
+          <div className={`transition-all duration-700 delay-600 transform ${
+            isVisible ? 'translate-x-0 opacity-100' : '-translate-x-4 opacity-0'
+          }`}>
             <label
               htmlFor="email"
               className="block text-sm font-semibold text-gray-800 mb-2"
@@ -66,7 +79,9 @@ const Login = () => {
           </div>
 
           {/* Password */}
-          <div>
+          <div className={`transition-all duration-700 delay-700 transform ${
+            isVisible ? 'translate-x-0 opacity-100' : '-translate-x-4 opacity-0'
+          }`}>
             <label
               htmlFor="password"
               className="block text-sm font-semibold text-gray-800 mb-2"
@@ -86,7 +101,9 @@ const Login = () => {
           </div>
 
           {/* Options */}
-          <div className="flex items-center justify-between">
+          <div className={`flex items-center justify-between transition-all duration-700 delay-800 transform ${
+            isVisible ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
+          }`}>
             <label className="flex items-center gap-2 text-gray-700 text-sm">
               <input
                 type="checkbox"
@@ -110,7 +127,9 @@ const Login = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 mt-4 text-lg font-bold rounded-2xl shadow-lg text-white transition-all duration-300 hover:-translate-y-1 disabled:opacity-50"
+            className={`w-full py-4 mt-4 text-lg font-bold rounded-2xl shadow-lg text-white transition-all duration-700 hover:-translate-y-1 disabled:opacity-50 delay-900 transform ${
+              isVisible ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-4 opacity-0 scale-95'
+            }`}
             style={{ backgroundColor: "#f5be67" }}
             onMouseEnter={(e) =>
               !loading && (e.target.style.backgroundColor = "#e6a855")
@@ -131,7 +150,9 @@ const Login = () => {
         </form>
 
         {/* Divider */}
-        <div className="mt-8 border-t border-gray-200 pt-6 text-center">
+        <div className={`mt-8 border-t border-gray-200 pt-6 text-center transition-all duration-700 delay-1000 transform ${
+          isVisible ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
+        }`}>
           <p className="text-gray-600">
             Don’t have an account?{" "}
             <Link
@@ -147,7 +168,9 @@ const Login = () => {
         </div>
 
         {/* Back to Home */}
-        <div className="text-center mt-6">
+        <div className={`text-center mt-6 transition-all duration-700 delay-1100 transform ${
+          isVisible ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
+        }`}>
           <Link
             to="/"
             className="text-gray-700 hover:text-gray-900 font-semibold transition-colors"

@@ -1,10 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function Register() {
   const [step, setStep] = useState(1);
+  const [isVisible, setIsVisible] = useState(false);
   const { registerUser, verifyEmail, loading } = useAuth();
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -66,9 +71,13 @@ export default function Register() {
       className="min-h-screen flex items-center justify-center py-12"
       style={{ backgroundColor: "#f5be67" }}
     >
-      <div className="w-full max-w-lg">
+      <div className={`w-full max-w-lg transition-all duration-1000 transform ${
+        isVisible ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-8 opacity-0 scale-95'
+      }`}>
         {/* Logo */}
-        <div className="text-center mb-8">
+        <div className={`text-center mb-8 transition-all duration-1000 delay-200 transform ${
+          isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+        }`}>
           <Link
             to="/"
             className="text-5xl font-bold text-white hover:text-gray-100 transition-colors"
@@ -83,10 +92,14 @@ export default function Register() {
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-3xl shadow-2xl p-10 border-4 border-white transition-all duration-300">
+        <div className={`bg-white rounded-3xl shadow-2xl p-10 border-4 border-white transition-all duration-1000 delay-400 transform ${
+          isVisible ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-6 opacity-0 scale-95'
+        }`}>
           {step === 1 ? (
             <>
-              <div className="text-center mb-8">
+              <div className={`text-center mb-8 transition-all duration-700 delay-600 transform ${
+                isVisible ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'
+              }`}>
                 <h2 className="text-3xl font-bold text-gray-900 mb-2">
                   Create Account
                 </h2>
@@ -95,8 +108,12 @@ export default function Register() {
                 </p>
               </div>
 
-              <form onSubmit={handleSubmitStep1} className="space-y-5">
-                <div className="grid grid-cols-2 gap-4">
+              <form onSubmit={handleSubmitStep1} className={`space-y-5 transition-all duration-700 delay-700 transform ${
+                isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+              }`}>
+                <div className={`grid grid-cols-2 gap-4 transition-all duration-600 delay-800 transform ${
+                  isVisible ? 'translate-x-0 opacity-100' : '-translate-x-4 opacity-0'
+                }`}>
                   <div>
                     <label
                       htmlFor="firstName"
@@ -142,7 +159,9 @@ export default function Register() {
                   </div>
                 </div>
 
-                <div>
+                <div className={`transition-all duration-600 delay-900 transform ${
+                  isVisible ? 'translate-x-0 opacity-100' : '-translate-x-4 opacity-0'
+                }`}>
                   <label
                     htmlFor="email"
                     className="block text-sm font-semibold text-gray-700 mb-2"
@@ -164,7 +183,9 @@ export default function Register() {
                   />
                 </div>
 
-                <div>
+                <div className={`transition-all duration-600 delay-1000 transform ${
+                  isVisible ? 'translate-x-0 opacity-100' : '-translate-x-4 opacity-0'
+                }`}>
                   <label
                     htmlFor="password"
                     className="block text-sm font-semibold text-gray-700 mb-2"
@@ -187,7 +208,9 @@ export default function Register() {
                 </div>
 
                 {/* Role dropdown */}
-                <div>
+                <div className={`transition-all duration-600 delay-1100 transform ${
+                  isVisible ? 'translate-x-0 opacity-100' : '-translate-x-4 opacity-0'
+                }`}>
                   <label
                     htmlFor="role"
                     className="block text-sm font-semibold text-gray-700 mb-2"
@@ -235,7 +258,9 @@ export default function Register() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full text-white font-bold py-4 px-6 rounded-2xl text-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-xl hover:shadow-2xl transform hover:-translate-y-1 mt-6"
+                  className={`w-full text-white font-bold py-4 px-6 rounded-2xl text-lg transition-all duration-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-xl hover:shadow-2xl hover:-translate-y-1 mt-6 delay-1200 transform ${
+                    isVisible ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-4 opacity-0 scale-95'
+                  }`}
                   style={{ backgroundColor: "#f5be67" }}
                   onMouseEnter={(e) =>
                     !loading && (e.target.style.backgroundColor = "#e6a855")
@@ -257,7 +282,9 @@ export default function Register() {
             </>
           ) : (
             <>
-              <div className="text-center mb-8">
+              <div className={`text-center mb-8 transition-all duration-700 delay-600 transform ${
+                isVisible ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'
+              }`}>
                 <h2 className="text-3xl font-bold text-gray-900 mb-2">
                   Verify OTP
                 </h2>
@@ -266,8 +293,12 @@ export default function Register() {
                 </p>
               </div>
 
-              <form onSubmit={handleSubmitStep2} className="space-y-6">
-                <div>
+              <form onSubmit={handleSubmitStep2} className={`space-y-6 transition-all duration-700 delay-700 transform ${
+                isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+              }`}>
+                <div className={`transition-all duration-600 delay-800 transform ${
+                  isVisible ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'
+                }`}>
                   <label
                     htmlFor="otp"
                     className="block text-sm font-semibold text-gray-700 mb-2"
@@ -293,7 +324,9 @@ export default function Register() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full text-white font-bold py-4 px-6 rounded-2xl text-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
+                  className={`w-full text-white font-bold py-4 px-6 rounded-2xl text-lg transition-all duration-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-xl hover:shadow-2xl hover:-translate-y-1 delay-900 transform ${
+                    isVisible ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-4 opacity-0 scale-95'
+                  }`}
                   style={{ backgroundColor: "#f5be67" }}
                   onMouseEnter={(e) =>
                     !loading && (e.target.style.backgroundColor = "#e6a855")
@@ -315,7 +348,9 @@ export default function Register() {
             </>
           )}
 
-          <div className="mt-8 text-center">
+          <div className={`mt-8 text-center transition-all duration-700 delay-1000 transform ${
+            isVisible ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
+          }`}>
             {step === 1 ? (
               <p className="text-gray-600">
                 Already have an account?{" "}
@@ -340,7 +375,9 @@ export default function Register() {
           </div>
         </div>
 
-        <div className="text-center mt-6">
+        <div className={`text-center mt-6 transition-all duration-700 delay-1100 transform ${
+          isVisible ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
+        }`}>
           <Link
             to="/"
             className="text-white hover:text-gray-100 font-semibold transition-colors"
