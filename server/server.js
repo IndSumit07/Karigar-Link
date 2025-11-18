@@ -22,6 +22,9 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("Hello from KarigarLink server!");
 });
+
+app.get("/ping", (req, res) => res.send("✅ Server is alive"));
+
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/rfq", rfqRouter);
