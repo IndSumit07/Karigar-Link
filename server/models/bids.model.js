@@ -8,11 +8,22 @@ const BidSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     }, // provider in your User.role
-    bidAmount: { type: Number, required: true, min: 0 },
-    message: { type: String, trim: true },
-    etaDays: { type: Number },
+    bidAmount: { 
+      type: Number, 
+      required: true, 
+      min: [1, "Bid amount must be greater than 0"] 
+    },
+    message: { type: String, trim: true, maxLength: 500 },
+    etaDays: { type: Number, min: 1 },
+    status: { 
+      type: String, 
+      enum: ["pending", "accepted", "rejected"], 
+      default: "pending" 
+    },
+    // Deprecated: keeping for backward compatibility
     isAccepted: { type: Boolean, default: false },
     attachments: [{ type: String }],
+    rejectionReason: { type: String, trim: true },
   },
   { timestamps: true }
 );

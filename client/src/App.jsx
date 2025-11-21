@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import ProviderDashboard from "./pages/ProviderDashboard";
 import PublicRoute from "./components/PublicRoute";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
@@ -15,6 +16,7 @@ import MyRFQsPage from "./pages/MyRFQsPage";
 import ViewBidsPage from "./pages/ViewBidsPage";
 import UserProfile from "./pages/UserProfile";
 import Notifications from "./pages/Notifications";
+import ChatPage from "./pages/ChatPage";
 
 const App = () => {
   return (
@@ -69,6 +71,14 @@ const App = () => {
           }
         />
         <Route
+          path="/provider-dashboard"
+          element={
+            
+              <ProviderDashboard />
+            
+          }
+        />
+        <Route
           path="/rfqs"
           element={
             
@@ -113,6 +123,22 @@ const App = () => {
           element={
             
               <Notifications />
+            
+          }
+        />
+        <Route
+          path="/chat"
+          element={
+            
+              <ChatPage />
+            
+          }
+        />
+        <Route
+          path="/chat/:userId"
+          element={
+            
+              <ChatPage />
             
           }
         />

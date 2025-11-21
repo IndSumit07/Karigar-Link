@@ -110,51 +110,27 @@ const CardNav = ({ className = "" }) => {
       },
     ];
 
-    // CUSTOMER (buyer) - show RFQ creation, browsing, my-rfqs, suppliers, samples
+    // CUSTOMER (buyer) - show RFQ creation, browsing, my-rfqs
     if (role === "customer") {
       return [
         {
-          label: "Sourcing",
+          label: "RFQs",
           bgColor: "rgba(245, 190, 103, 0.9)",
           textColor: "white",
           links: [
-            { label: "Browse RFQs", href: "/rfqs", ariaLabel: "Browse RFQs" }, // public RFQ listing (buyers/providers can browse)
+            { label: "Browse RFQs", href: "/rfqs", ariaLabel: "Browse RFQs" },
             {
               label: "Post RFQ",
               href: "/rfq/create",
               ariaLabel: "Create a new RFQ",
             },
             { label: "My RFQs", href: "/my-rfqs", ariaLabel: "View my RFQs" },
-            {
-              label: "Supplier Directory",
-              href: "/suppliers",
-              ariaLabel: "Browse verified suppliers",
-            },
-          ],
-        },
-        {
-          label: "Shopping",
-          bgColor: "rgba(255, 255, 255, 0.95)",
-          textColor: "#f5be67",
-          links: [
-            { label: "Cart", href: "/cart", ariaLabel: "View cart" },
-            {
-              label: "Sample Orders",
-              href: "/orders/samples",
-              ariaLabel: "View sample orders",
-            },
-            { label: "Orders", href: "/orders", ariaLabel: "View orders" },
-            {
-              label: "Suppliers",
-              href: "/suppliers",
-              ariaLabel: "Supplier directory",
-            },
           ],
         },
         {
           label: "Account",
-          bgColor: "rgba(245, 190, 103, 0.85)",
-          textColor: "white",
+          bgColor: "rgba(255, 255, 255, 0.95)",
+          textColor: "#f5be67",
           links: [
             {
               label: "Dashboard",
@@ -191,16 +167,11 @@ const CardNav = ({ className = "" }) => {
               href: "/rfqs",
               ariaLabel: "Browse RFQs to bid on",
             },
-            { label: "My Bids", href: "/bids/me", ariaLabel: "View your bids" },
+            { label: "My Bids", href: "/my-rfqs", ariaLabel: "View your bids" },
             {
-              label: "Manage Replies",
-              href: "/provider/replies",
-              ariaLabel: "Manage quotes and replies",
-            },
-            {
-              label: "Supplier Profile",
-              href: "/provider/profile",
-              ariaLabel: "Manage supplier profile",
+              label: "Notifications",
+              href: "/notifications",
+              ariaLabel: "View notifications",
             },
           ],
         },
@@ -211,23 +182,13 @@ const CardNav = ({ className = "" }) => {
           links: [
             {
               label: "Dashboard",
-              href: "/provider/dashboard",
+              href: "/provider-dashboard",
               ariaLabel: "Provider dashboard",
             },
             {
-              label: "My Services",
-              href: "/provider/services",
-              ariaLabel: "Manage services",
-            },
-            {
-              label: "Earnings",
-              href: "/provider/earnings",
-              ariaLabel: "View earnings",
-            },
-            {
-              label: "Analytics",
-              href: "/provider/analytics",
-              ariaLabel: "View analytics",
+              label: "Profile",
+              href: "/profile",
+              ariaLabel: "Manage profile",
             },
           ],
         },
@@ -237,14 +198,14 @@ const CardNav = ({ className = "" }) => {
           textColor: "white",
           links: [
             {
-              label: "Business Info",
-              href: "/provider/business",
-              ariaLabel: "Manage business info",
+              label: "Profile Settings",
+              href: "/profile",
+              ariaLabel: "Edit profile",
             },
             {
-              label: "Support",
-              href: "/provider/support",
-              ariaLabel: "Get support",
+              label: "Notifications",
+              href: "/notifications",
+              ariaLabel: "View notifications",
             },
             {
               label: "Logout",

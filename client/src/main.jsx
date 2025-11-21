@@ -4,13 +4,16 @@ import "./index.css";
 import App from "./App.jsx";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
 import { RFQProvider } from "./contexts/RFQContext.jsx";
+import { SocketProvider } from "./contexts/SocketContext.jsx";
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <AuthProvider>
-      <RFQProvider>
-        <App />
-      </RFQProvider>
+      <SocketProvider>
+        <RFQProvider>
+          <App />
+        </RFQProvider>
+      </SocketProvider>
     </AuthProvider>
   </BrowserRouter>
 );

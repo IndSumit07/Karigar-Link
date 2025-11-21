@@ -16,10 +16,10 @@ import {
 
 const generateTokens = (userId) => {
   const accessToken = jwt.sign({ id: userId }, process.env.ACCESS_SECRET, {
-    expiresIn: "15m",
+    expiresIn: "30d",
   });
   const refreshToken = jwt.sign({ id: userId }, process.env.REFRESH_SECRET, {
-    expiresIn: "7d",
+    expiresIn: "30d",
   });
   return { accessToken, refreshToken };
 };
@@ -65,25 +65,38 @@ export const register = async (req, res) => {
         .status(400)
         .json({ success: false, message: "All fields are required" });
 
-    await PendingUser.deleteOne({ email }); // Remove old pending entries
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser)
+      return res
+        .status(400)
+        .json({ success: false, message: "Email already registered" });
 
-    const otp = generateOtp();
     const hashedPassword = await bcrypt.hash(password, 10);
-    const hashedOtp = await bcrypt.hash(otp, 10);
 
-    await PendingUser.create({
+    // Directly create user without OTP verification
+    const newUser = await User.create({
       fullname,
       email,
       password: hashedPassword,
-      registrationOtp: hashedOtp,
-      role,
+      role: role || "customer",
     });
 
-    await sendVerificationEmail(email, otp);
+    // Send welcome email (optional)
+    try {
+      await sendRegistrationSuccessEmail(
+        email,
+        fullname.firstname + " " + (fullname.lastname || "")
+      );
+    } catch (emailError) {
+      console.log("Email send failed, but user created:", emailError.message);
+    }
 
-    return res
-      .status(201)
-      .json({ success: true, message: "Verification email sent." });
+    return res.status(201).json({
+      success: true,
+      message: "Registration successful! Please login.",
+      userId: newUser._id,
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -100,19 +113,25 @@ export const register = async (req, res) => {
 export const verifyRegistrationOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
+    console.log("🔍 OTP Verification - Email:", email, "OTP:", otp);
+    
     if (!email || !otp)
       return res
         .status(400)
         .json({ success: false, message: "Email and OTP are required" });
 
     const pendingUser = await PendingUser.findOne({ email });
+    console.log("🔍 Pending User Found:", !!pendingUser);
+    
     if (!pendingUser)
       return res.status(400).json({
         success: false,
         message: "Session expired, please register again",
       });
 
-    const isOtpValid = await bcrypt.compare(otp, pendingUser.registrationOtp);
+    const isOtpValid = await bcrypt.compare(String(otp), pendingUser.registrationOtp);
+    console.log("🔍 OTP Valid:", isOtpValid);
+    
     if (!isOtpValid)
       return res.status(400).json({ success: false, message: "Invalid OTP" });
 
@@ -174,7 +193,7 @@ export const login = async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
 
     const safeUser = { ...user._doc };

@@ -145,11 +145,14 @@ export const RFQProvider = ({ children }) => {
       const { data } = await axios.get(`/rfq/${rfqId}/bids`, {
         headers: getAuthHeader(),
       });
-      setBids(Array.isArray(data) ? data : []);
-      return data;
+      // Handle new response format with bids and stats
+      const bidsArray = data.bids || (Array.isArray(data) ? data : []);
+      setBids(bidsArray);
+      return data; // Returns { bids: [], stats: {} } or just []
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Failed to load bids");
-      return [];
+      // Silently handle error - no toast needed for viewing bids
+      console.error("Failed to load bids:", err);
+      return { bids: [], stats: {} };
     } finally {
       setLoading(false);
     }
@@ -217,6 +220,28 @@ export const RFQProvider = ({ children }) => {
     }
   };
 
+  const updateBidStatus = async (bidId, status, rejectionReason = "") => {
+    setActionLoading(true);
+    try {
+      const { data } = await axios.put(
+        `/bids/${bidId}/status`,
+        { status, rejectionReason },
+        {
+          headers: { "Content-Type": "application/json", ...getAuthHeader() },
+        }
+      );
+      toast.success(
+        status === "accepted" ? "Bid accepted!" : "Bid rejected"
+      );
+      return data;
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed to update bid status");
+      throw err;
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   // Cart
   const addToCart = async ({
     productId,
@@ -272,6 +297,7 @@ export const RFQProvider = ({ children }) => {
         fetchMyBids,
         updateBid,
         deleteBid,
+        updateBidStatus,
         addToCart,
         API_BASE,
       }}

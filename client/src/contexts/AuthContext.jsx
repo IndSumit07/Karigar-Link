@@ -42,10 +42,12 @@ export const AuthProvider = ({ children }) => {
     setActionLoading(true);
     try {
       const res = await axios.post(`${API_URL}/auth/register`, data);
-      toast.success(res.data.message || "OTP sent to your email!");
+      toast.success(res.data.message || "Registration successful!");
+      navigate("/login");
       return true;
     } catch (err) {
       toast.error(err.response?.data?.message || "Registration failed");
+      return false;
     } finally {
       setActionLoading(false);
     }
@@ -178,6 +180,7 @@ export const AuthProvider = ({ children }) => {
         forgotPassword,
         resetPassword,
         verifyResetOtp,
+        token: localStorage.getItem("accessToken"),
       }}
     >
       {children}

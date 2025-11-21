@@ -1,34 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { User, Mail, Lock, UserPlus, ArrowLeft, Sparkles, Briefcase } from "lucide-react";
 
 export default function Register() {
-  const [step, setStep] = useState(1);
-  const [isVisible, setIsVisible] = useState(false);
-  const { registerUser, verifyEmail, loading } = useAuth();
-
-  useEffect(() => {
-    setIsVisible(true);
-  }, []);
+  const { registerUser, loading } = useAuth();
 
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     password: "",
-    role: "customer", // default role
+    role: "customer",
   });
-
-  const [otp, setOtp] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Step 1 - Send OTP
-  const handleSubmitStep1 = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
     const payload = {
       fullname: {
         firstname: formData.firstName,
@@ -38,354 +29,225 @@ export default function Register() {
       password: formData.password,
       role: formData.role,
     };
-
-    const data = await registerUser(payload);
-
-    if (data) {
-      setStep(2);
-    }
-  };
-
-  // Step 2 - Verify OTP and Register
-  const handleSubmitStep2 = async (e) => {
-    e.preventDefault();
-    const payload = {
-      email: formData.email,
-      otp: otp,
-    };
-    await verifyEmail(payload);
-  };
-
-  const inputStyle = { borderColor: "#f5be67" };
-  const handleFocus = (e) => {
-    e.target.style.borderColor = "#e6a855";
-    e.target.style.boxShadow = "0 0 0 3px rgba(245,190,103,0.1)";
-  };
-  const handleBlur = (e) => {
-    e.target.style.borderColor = "#f5be67";
-    e.target.style.boxShadow = "none";
+    await registerUser(payload);
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center py-12"
-      style={{ backgroundColor: "#f5be67" }}
-    >
-      <div className={`w-full max-w-lg transition-all duration-1000 transform ${
-        isVisible ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-8 opacity-0 scale-95'
-      }`}>
-        {/* Logo */}
-        <div className={`text-center mb-8 transition-all duration-1000 delay-200 transform ${
-          isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-        }`}>
-          <Link
-            to="/"
-            className="text-5xl font-bold text-white hover:text-gray-100 transition-colors"
-          >
-            KarigarLink
-          </Link>
-          <p className="text-white text-lg mt-2 opacity-90">
-            {step === 1
-              ? "Join our community of professionals"
-              : "Verify your email to complete registration"}
-          </p>
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-yellow-50 relative overflow-hidden py-12 px-4">
+      {/* Decorative elements */}
+      <div className="absolute top-20 right-20 w-64 h-64 bg-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
+      <div className="absolute bottom-20 left-20 w-64 h-64 bg-yellow-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
+
+      {/* Main container */}
+      <div className="relative z-10 w-full max-w-lg">
+        {/* Back to Home */}
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-8 transition-colors group"
+        >
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          <span className="font-semibold">Back to Home</span>
+        </Link>
 
         {/* Card */}
-        <div className={`bg-white rounded-3xl shadow-2xl p-10 border-4 border-white transition-all duration-1000 delay-400 transform ${
-          isVisible ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-6 opacity-0 scale-95'
-        }`}>
-          {step === 1 ? (
-            <>
-              <div className={`text-center mb-8 transition-all duration-700 delay-600 transform ${
-                isVisible ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'
-              }`}>
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                  Create Account
-                </h2>
-                <p className="text-gray-600">
-                  Fill in your details to get started
-                </p>
-              </div>
-
-              <form onSubmit={handleSubmitStep1} className={`space-y-5 transition-all duration-700 delay-700 transform ${
-                isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-              }`}>
-                <div className={`grid grid-cols-2 gap-4 transition-all duration-600 delay-800 transform ${
-                  isVisible ? 'translate-x-0 opacity-100' : '-translate-x-4 opacity-0'
-                }`}>
-                  <div>
-                    <label
-                      htmlFor="firstName"
-                      className="block text-sm font-semibold text-gray-700 mb-2"
-                    >
-                      First Name
-                    </label>
-                    <input
-                      id="firstName"
-                      name="firstName"
-                      type="text"
-                      required
-                      value={formData.firstName}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 border-3 rounded-xl text-lg focus:outline-none transition-all duration-300"
-                      style={inputStyle}
-                      onFocus={handleFocus}
-                      onBlur={handleBlur}
-                      placeholder="Enter first name"
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="lastName"
-                      className="block text-sm font-semibold text-gray-700 mb-2"
-                    >
-                      Last Name
-                    </label>
-                    <input
-                      id="lastName"
-                      name="lastName"
-                      type="text"
-                      required
-                      value={formData.lastName}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 border-3 rounded-xl text-lg focus:outline-none transition-all duration-300"
-                      style={inputStyle}
-                      onFocus={handleFocus}
-                      onBlur={handleBlur}
-                      placeholder="Enter last name"
-                    />
-                  </div>
-                </div>
-
-                <div className={`transition-all duration-600 delay-900 transform ${
-                  isVisible ? 'translate-x-0 opacity-100' : '-translate-x-4 opacity-0'
-                }`}>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-semibold text-gray-700 mb-2"
-                  >
-                    Email Address
-                  </label>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border-3 rounded-xl text-lg focus:outline-none transition-all duration-300"
-                    style={inputStyle}
-                    onFocus={handleFocus}
-                    onBlur={handleBlur}
-                    placeholder="Enter your email"
-                  />
-                </div>
-
-                <div className={`transition-all duration-600 delay-1000 transform ${
-                  isVisible ? 'translate-x-0 opacity-100' : '-translate-x-4 opacity-0'
-                }`}>
-                  <label
-                    htmlFor="password"
-                    className="block text-sm font-semibold text-gray-700 mb-2"
-                  >
-                    Password
-                  </label>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    required
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border-3 rounded-xl text-lg focus:outline-none transition-all duration-300"
-                    style={inputStyle}
-                    onFocus={handleFocus}
-                    onBlur={handleBlur}
-                    placeholder="Create password"
-                  />
-                </div>
-
-                {/* Role dropdown */}
-                <div className={`transition-all duration-600 delay-1100 transform ${
-                  isVisible ? 'translate-x-0 opacity-100' : '-translate-x-4 opacity-0'
-                }`}>
-                  <label
-                    htmlFor="role"
-                    className="block text-sm font-semibold text-gray-700 mb-2"
-                  >
-                    Select Role
-                  </label>
-
-                  {/* Custom styled select to match theme */}
-                  <div className="relative">
-                    <select
-                      id="role"
-                      name="role"
-                      value={formData.role}
-                      onChange={handleChange}
-                      className="appearance-none w-full px-4 py-3 border-3 rounded-xl text-lg focus:outline-none transition-all duration-300"
-                      style={inputStyle}
-                      onFocus={handleFocus}
-                      onBlur={handleBlur}
-                    >
-                      <option value="customer">Customer</option>
-                      <option value="provider">Provider</option>
-                    </select>
-
-                    {/* Chevron icon (pure CSS) */}
-                    <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center">
-                      <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M6 9l6 6 6-6"
-                          stroke="#7a5a2f"
-                          strokeWidth="1.8"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className={`w-full text-white font-bold py-4 px-6 rounded-2xl text-lg transition-all duration-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-xl hover:shadow-2xl hover:-translate-y-1 mt-6 delay-1200 transform ${
-                    isVisible ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-4 opacity-0 scale-95'
-                  }`}
-                  style={{ backgroundColor: "#f5be67" }}
-                  onMouseEnter={(e) =>
-                    !loading && (e.target.style.backgroundColor = "#e6a855")
-                  }
-                  onMouseLeave={(e) =>
-                    !loading && (e.target.style.backgroundColor = "#f5be67")
-                  }
-                >
-                  {loading ? (
-                    <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-2"></div>
-                      Sending OTP...
-                    </div>
-                  ) : (
-                    "Send OTP"
-                  )}
-                </button>
-              </form>
-            </>
-          ) : (
-            <>
-              <div className={`text-center mb-8 transition-all duration-700 delay-600 transform ${
-                isVisible ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'
-              }`}>
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                  Verify OTP
-                </h2>
-                <p className="text-gray-600">
-                  Enter the 6-digit OTP sent to <b>{formData.email}</b>
-                </p>
-              </div>
-
-              <form onSubmit={handleSubmitStep2} className={`space-y-6 transition-all duration-700 delay-700 transform ${
-                isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-              }`}>
-                <div className={`transition-all duration-600 delay-800 transform ${
-                  isVisible ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'
-                }`}>
-                  <label
-                    htmlFor="otp"
-                    className="block text-sm font-semibold text-gray-700 mb-2"
-                  >
-                    OTP Code
-                  </label>
-                  <input
-                    id="otp"
-                    name="otp"
-                    type="text"
-                    required
-                    maxLength="6"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    className="w-full px-4 py-3 border-3 rounded-xl text-lg tracking-widest text-center focus:outline-none transition-all duration-300"
-                    style={inputStyle}
-                    onFocus={handleFocus}
-                    onBlur={handleBlur}
-                    placeholder="Enter OTP"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className={`w-full text-white font-bold py-4 px-6 rounded-2xl text-lg transition-all duration-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-xl hover:shadow-2xl hover:-translate-y-1 delay-900 transform ${
-                    isVisible ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-4 opacity-0 scale-95'
-                  }`}
-                  style={{ backgroundColor: "#f5be67" }}
-                  onMouseEnter={(e) =>
-                    !loading && (e.target.style.backgroundColor = "#e6a855")
-                  }
-                  onMouseLeave={(e) =>
-                    !loading && (e.target.style.backgroundColor = "#f5be67")
-                  }
-                >
-                  {loading ? (
-                    <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-2"></div>
-                      Verifying...
-                    </div>
-                  ) : (
-                    "Verify & Register"
-                  )}
-                </button>
-              </form>
-            </>
-          )}
-
-          <div className={`mt-8 text-center transition-all duration-700 delay-1000 transform ${
-            isVisible ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
-          }`}>
-            {step === 1 ? (
-              <p className="text-gray-600">
-                Already have an account?{" "}
-                <Link
-                  to="/login"
-                  className="font-bold hover:underline transition-colors"
-                  style={{ color: "#f5be67" }}
-                  onMouseEnter={(e) => (e.target.style.color = "#e6a855")}
-                  onMouseLeave={(e) => (e.target.style.color = "#f5be67")}
-                >
-                  Sign In
-                </Link>
-              </p>
-            ) : (
-              <button
-                onClick={() => setStep(1)}
-                className="text-sm text-gray-600 hover:text-gray-800 transition-colors"
-              >
-                ← Back to details
-              </button>
-            )}
+        <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-8 md:p-10">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-orange-400 to-yellow-500 rounded-2xl mb-4 shadow-lg">
+              <Sparkles className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Create Account
+            </h1>
+            <p className="text-gray-600">
+              Join KarigarLink community today
+            </p>
           </div>
-        </div>
 
-        <div className={`text-center mt-6 transition-all duration-700 delay-1100 transform ${
-          isVisible ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
-        }`}>
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Name Fields */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label
+                  htmlFor="firstName"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                >
+                  <User className="w-4 h-4 text-orange-500" />
+                  First Name
+                </label>
+                <input
+                  id="firstName"
+                  name="firstName"
+                  type="text"
+                  required
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  placeholder="John"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="lastName"
+                  className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+                >
+                  <User className="w-4 h-4 text-orange-500" />
+                  Last Name
+                </label>
+                <input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  required
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  placeholder="Doe"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Email */}
+            <div>
+              <label
+                htmlFor="email"
+                className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+              >
+                <Mail className="w-4 h-4 text-orange-500" />
+                Email Address
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="john@example.com"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+              />
+            </div>
+
+            {/* Password */}
+            <div>
+              <label
+                htmlFor="password"
+                className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2"
+              >
+                <Lock className="w-4 h-4 text-orange-500" />
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Create a strong password"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+              />
+            </div>
+
+            {/* Role Selection */}
+            <div>
+              <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
+                <Briefcase className="w-4 h-4 text-orange-500" />
+                Select Role
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, role: "customer" })}
+                  className={`p-4 rounded-xl border-2 transition-all ${
+                    formData.role === "customer"
+                      ? "border-orange-500 bg-orange-50 text-orange-700"
+                      : "border-gray-200 bg-gray-50 text-gray-600 hover:border-orange-300"
+                  }`}
+                >
+                  <User className="w-6 h-6 mx-auto mb-2" />
+                  <div className="font-semibold">Customer</div>
+                  <div className="text-xs mt-1 opacity-80">Buy products</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, role: "provider" })}
+                  className={`p-4 rounded-xl border-2 transition-all ${
+                    formData.role === "provider"
+                      ? "border-orange-500 bg-orange-50 text-orange-700"
+                      : "border-gray-200 bg-gray-50 text-gray-600 hover:border-orange-300"
+                  }`}
+                >
+                  <Briefcase className="w-6 h-6 mx-auto mb-2" />
+                  <div className="font-semibold">Provider</div>
+                  <div className="text-xs mt-1 opacity-80">Sell products</div>
+                </button>
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-6"
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  Creating Account...
+                </>
+              ) : (
+                <>
+                  <UserPlus className="w-5 h-5" />
+                  Create Account
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Divider */}
+          <div className="relative my-8">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-4 bg-white text-gray-500">
+                Already have an account?
+              </span>
+            </div>
+          </div>
+
+          {/* Sign In Link */}
           <Link
-            to="/"
-            className="text-white hover:text-gray-100 font-semibold transition-colors"
+            to="/login"
+            className="block w-full py-3 text-center border-2 border-orange-300 text-orange-600 rounded-xl font-semibold hover:bg-orange-50 transition-all"
           >
-            ← Back to Home
+            Sign In
           </Link>
         </div>
       </div>
+
+      <style>{`
+        @keyframes blob {
+          0%, 100% {
+            transform: translate(0px, 0px) scale(1);
+          }
+          33% {
+            transform: translate(30px, -50px) scale(1.1);
+          }
+          66% {
+            transform: translate(-20px, 20px) scale(0.9);
+          }
+        }
+        .animate-blob {
+          animation: blob 7s infinite;
+        }
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+      `}</style>
     </div>
   );
 }

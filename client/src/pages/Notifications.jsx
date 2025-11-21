@@ -1,277 +1,317 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
+import DashboardLayout from "../components/DashboardLayout";
+import axios from "axios";
+import { useSocket } from "../contexts/SocketContext";
+import { useAuth } from "../contexts/AuthContext";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const Notifications = () => {
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [activeFilter, setActiveFilter] = useState("all");
   const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const socket = useSocket();
+  const { token } = useAuth();
+  const navigate = useNavigate();
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/notifications`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setNotifications(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Mock notifications data
-    const mockNotifications = [
-      {
-        id: 1,
-        type: 'order',
-        title: 'Order Delivered',
-        message: 'Your order "Handwoven Sarees" has been delivered successfully.',
-        time: '2 hours ago',
-        read: false,
-        icon: '📦',
-        color: 'green'
-      },
-      {
-        id: 2,
-        type: 'quote',
-        title: 'New Quote Received',
-        message: 'Meera Devi sent you a quote for your pottery set request.',
-        time: '4 hours ago',
-        read: false,
-        icon: '💰',
-        color: 'blue'
-      },
-      {
-        id: 3,
-        type: 'message',
-        title: 'Message from Artisan',
-        message: 'Ram Singh: "Your wooden crafts order will be ready by tomorrow."',
-        time: '6 hours ago',
-        read: true,
-        icon: '💬',
-        color: 'purple'
-      },
-      {
-        id: 4,
-        type: 'system',
-        title: 'Profile Verification Complete',
-        message: 'Your profile has been successfully verified. You can now access premium features.',
-        time: '1 day ago',
-        read: true,
-        icon: '✅',
-        color: 'green'
-      },
-      {
-        id: 5,
-        type: 'order',
-        title: 'Order Status Update',
-        message: 'Your order "Pottery Set" is now in transit and will arrive in 2-3 days.',
-        time: '1 day ago',
-        read: false,
-        icon: '🚚',
-        color: 'orange'
-      },
-      {
-        id: 6,
-        type: 'promotion',
-        title: 'Special Offer',
-        message: 'Get 20% off on your next order from verified artisans. Limited time offer!',
-        time: '2 days ago',
-        read: true,
-        icon: '🎉',
-        color: 'red'
-      }
-    ];
-    setNotifications(mockNotifications);
-  }, []);
+    fetchNotifications();
+  }, [token]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("receive_notification", (notification) => {
+        setNotifications((prev) => [notification, ...prev]);
+        toast.info(`New Notification: ${notification.message}`);
+      });
+
+      return () => {
+        socket.off("receive_notification");
+      };
+    }
+  }, [socket]);
 
   const filters = [
-    { id: 'all', label: 'All', count: notifications.length },
-    { id: 'unread', label: 'Unread', count: notifications.filter(n => !n.read).length },
-    { id: 'order', label: 'Orders', count: notifications.filter(n => n.type === 'order').length },
-    { id: 'message', label: 'Messages', count: notifications.filter(n => n.type === 'message').length }
+    { id: "all", label: "All", count: notifications.length },
+    {
+      id: "unread",
+      label: "Unread",
+      count: notifications.filter((n) => !n.isRead).length,
+    },
+    {
+      id: "BID_RECEIVED",
+      label: "Bids",
+      count: notifications.filter((n) => n.type === "BID_RECEIVED").length,
+    },
+    {
+      id: "NEW_MESSAGE",
+      label: "Messages",
+      count: notifications.filter((n) => n.type === "NEW_MESSAGE").length,
+    },
   ];
 
-  const filteredNotifications = notifications.filter(notification => {
-    if (activeFilter === 'all') return true;
-    if (activeFilter === 'unread') return !notification.read;
+  const filteredNotifications = notifications.filter((notification) => {
+    if (activeFilter === "all") return true;
+    if (activeFilter === "unread") return !notification.isRead;
     return notification.type === activeFilter;
   });
 
-  const markAsRead = (id) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === id ? { ...notification, read: true } : notification
-      )
-    );
+  const markAsRead = async (id) => {
+    try {
+      await axios.put(
+        `${import.meta.env.VITE_API_URL}/notifications/${id}/read`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setNotifications((prev) =>
+        prev.map((notification) =>
+          notification._id === id
+            ? { ...notification, isRead: true }
+            : notification
+        )
+      );
+    } catch (error) {
+      console.error("Error marking as read:", error);
+    }
   };
 
-  const markAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(notification => ({ ...notification, read: true }))
-    );
+  const markAllAsRead = async () => {
+    try {
+      await axios.put(
+        `${import.meta.env.VITE_API_URL}/notifications/read-all`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setNotifications((prev) =>
+        prev.map((notification) => ({ ...notification, isRead: true }))
+      );
+    } catch (error) {
+      console.error("Error marking all as read:", error);
+    }
   };
 
-  const deleteNotification = (id) => {
-    setNotifications(prev => prev.filter(notification => notification.id !== id));
+  const handleNotificationClick = (notification) => {
+    if (!notification.isRead) {
+      markAsRead(notification._id);
+    }
+    if (notification.link) {
+      navigate(notification.link);
+    }
   };
 
-  const getColorClasses = (color, read) => {
+  const getColorClasses = (type, isRead) => {
     const baseClasses = {
-      green: read ? 'bg-green-50 border-green-200' : 'bg-green-100 border-green-300',
-      blue: read ? 'bg-blue-50 border-blue-200' : 'bg-blue-100 border-blue-300',
-      purple: read ? 'bg-purple-50 border-purple-200' : 'bg-purple-100 border-purple-300',
-      orange: read ? 'bg-orange-50 border-orange-200' : 'bg-orange-100 border-orange-300',
-      red: read ? 'bg-red-50 border-red-200' : 'bg-red-100 border-red-300'
+      BID_RECEIVED: isRead
+        ? "bg-blue-50 border-blue-200"
+        : "bg-blue-100 border-blue-300",
+      BID_ACCEPTED: isRead
+        ? "bg-green-50 border-green-200"
+        : "bg-green-100 border-green-300",
+      BID_REJECTED: isRead
+        ? "bg-red-50 border-red-200"
+        : "bg-red-100 border-red-300",
+      NEW_MESSAGE: isRead
+        ? "bg-purple-50 border-purple-200"
+        : "bg-purple-100 border-purple-300",
+      ORDER_UPDATE: isRead
+        ? "bg-orange-50 border-orange-200"
+        : "bg-orange-100 border-orange-300",
     };
-    return baseClasses[color] || 'bg-gray-50 border-gray-200';
+    return baseClasses[type] || "bg-gray-50 border-gray-200";
+  };
+
+  const getIcon = (type) => {
+    switch (type) {
+      case "BID_RECEIVED":
+        return "💰";
+      case "BID_ACCEPTED":
+        return "✅";
+      case "BID_REJECTED":
+        return "❌";
+      case "NEW_MESSAGE":
+        return "💬";
+      case "ORDER_UPDATE":
+        return "📦";
+      default:
+        return "🔔";
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-orange-50 to-yellow-50">
+    <DashboardLayout>
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Notifications</h1>
-              <p className="text-gray-600 mt-1">Stay updated with your orders and messages</p>
-            </div>
-            <button
-              onClick={markAllAsRead}
-              className="px-4 py-2 text-sm font-medium text-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
-              style={{ backgroundColor: '#f5be67' }}
-            >
-              Mark All Read
-            </button>
+      <div className="mb-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Notifications</h1>
+            <p className="text-gray-600 mt-1">
+              Stay updated with your orders and messages
+            </p>
           </div>
+          <button
+            onClick={markAllAsRead}
+            className="px-4 py-2 text-sm font-medium bg-orange-500 text-white rounded-lg shadow-sm hover:bg-orange-600 transition-all duration-200"
+          >
+            Mark All Read
+          </button>
         </div>
       </div>
 
       {/* Filter Tabs */}
-      <div className="bg-white border-b">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex space-x-8">
-            {filters.map((filter) => (
-              <button
-                key={filter.id}
-                onClick={() => setActiveFilter(filter.id)}
-                className={`py-4 px-2 border-b-2 font-medium text-sm transition-colors duration-200 ${
-                  activeFilter === filter.id
-                    ? 'border-current text-gray-900'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-                style={activeFilter === filter.id ? { borderColor: '#f5be67', color: '#f5be67' } : {}}
-              >
-                {filter.label}
-                {filter.count > 0 && (
-                  <span className="ml-2 px-2 py-1 text-xs rounded-full bg-gray-200 text-gray-700">
-                    {filter.count}
-                  </span>
-                )}
-              </button>
-            ))}
-          </nav>
-        </div>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
+        <nav className="flex space-x-8 px-6 overflow-x-auto">
+          {filters.map((filter) => (
+            <button
+              key={filter.id}
+              onClick={() => setActiveFilter(filter.id)}
+              className={`py-4 px-2 border-b-2 font-medium text-sm transition-colors duration-200 whitespace-nowrap ${
+                activeFilter === filter.id
+                  ? "border-orange-500 text-orange-500"
+                  : "border-transparent text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              {filter.label}
+              {filter.count > 0 && (
+                <span className="ml-2 px-2 py-1 text-xs rounded-full bg-gray-200 text-gray-700">
+                  {filter.count}
+                </span>
+              )}
+            </button>
+          ))}
+        </nav>
       </div>
 
       {/* Notifications List */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {filteredNotifications.length === 0 ? (
-          <div className="text-center py-12">
+      <div>
+        {loading ? (
+          <div className="text-center py-12">Loading notifications...</div>
+        ) : filteredNotifications.length === 0 ? (
+          <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-gray-200">
             <div className="text-6xl mb-4">🔔</div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No notifications</h3>
-            <p className="text-gray-600">You're all caught up! Check back later for updates.</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              No notifications
+            </h3>
+            <p className="text-gray-600">
+              You're all caught up! Check back later for updates.
+            </p>
           </div>
         ) : (
           <div className="space-y-4">
             {filteredNotifications.map((notification) => (
               <div
-                key={notification.id}
-                className={`border rounded-xl p-6 transition-all duration-200 hover:shadow-md ${
-                  getColorClasses(notification.color, notification.read)
-                } ${!notification.read ? 'ring-2 ring-opacity-20' : ''}`}
-                style={!notification.read ? { ringColor: '#f5be67' } : {}}
+                key={notification._id}
+                onClick={() => handleNotificationClick(notification)}
+                className={`border rounded-xl p-6 transition-all duration-200 hover:shadow-md cursor-pointer ${getColorClasses(
+                  notification.type,
+                  notification.isRead
+                )} ${!notification.isRead ? "ring-2 ring-orange-200" : ""}`}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-4 flex-1">
                     {/* Icon */}
                     <div className="flex-shrink-0">
                       <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-xl shadow-sm">
-                        {notification.icon}
+                        {getIcon(notification.type)}
                       </div>
                     </div>
 
                     {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className={`text-lg font-semibold ${!notification.read ? 'text-gray-900' : 'text-gray-700'}`}>
-                          {notification.title}
+                        <h3
+                          className={`text-lg font-semibold ${
+                            !notification.isRead
+                              ? "text-gray-900"
+                              : "text-gray-700"
+                          }`}
+                        >
+                          {notification.type.replace(/_/g, " ")}
                         </h3>
-                        {!notification.read && (
-                          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#f5be67' }}></div>
+                        {!notification.isRead && (
+                          <div className="w-2 h-2 rounded-full bg-orange-500"></div>
                         )}
                       </div>
-                      <p className={`text-sm ${!notification.read ? 'text-gray-700' : 'text-gray-600'} mb-2`}>
+                      
+                      {notification.sender && (
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600">
+                            {notification.sender.fullname?.firstname?.charAt(0)}
+                          </div>
+                          <span className="text-sm font-medium text-gray-900">
+                            {notification.sender.fullname?.firstname} {notification.sender.fullname?.lastname}
+                          </span>
+                        </div>
+                      )}
+
+                      <p
+                        className={`text-sm ${
+                          !notification.isRead
+                            ? "text-gray-700"
+                            : "text-gray-600"
+                        } mb-2`}
+                      >
                         {notification.message}
                       </p>
-                      <p className="text-xs text-gray-500">{notification.time}</p>
+                      <p className="text-xs text-gray-500">
+                        {new Date(notification.createdAt).toLocaleString()}
+                      </p>
                     </div>
                   </div>
 
                   {/* Actions */}
                   <div className="flex items-center space-x-2 ml-4">
-                    {!notification.read && (
+                    {!notification.isRead && (
                       <button
-                        onClick={() => markAsRead(notification.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          markAsRead(notification._id);
+                        }}
                         className="p-2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
                         title="Mark as read"
                       >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
                         </svg>
                       </button>
                     )}
-                    <button
-                      onClick={() => deleteNotification(notification.id)}
-                      className="p-2 text-gray-400 hover:text-red-500 transition-colors duration-200"
-                      title="Delete notification"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
                   </div>
                 </div>
-
-                {/* Action Buttons for specific notification types */}
-                {notification.type === 'quote' && (
-                  <div className="mt-4 flex gap-3">
-                    <button 
-                      className="px-4 py-2 text-sm font-medium text-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
-                      style={{ backgroundColor: '#f5be67' }}
-                    >
-                      View Quote
-                    </button>
-                    <button className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200">
-                      Decline
-                    </button>
-                  </div>
-                )}
-
-                {notification.type === 'order' && notification.title.includes('Delivered') && (
-                  <div className="mt-4">
-                    <button 
-                      className="px-4 py-2 text-sm font-medium text-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
-                      style={{ backgroundColor: '#f5be67' }}
-                    >
-                      Rate & Review
-                    </button>
-                  </div>
-                )}
-
-                {notification.type === 'message' && (
-                  <div className="mt-4">
-                    <button 
-                      className="px-4 py-2 text-sm font-medium text-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
-                      style={{ backgroundColor: '#f5be67' }}
-                    >
-                      Reply
-                    </button>
-                  </div>
-                )}
               </div>
             ))}
           </div>
         )}
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 

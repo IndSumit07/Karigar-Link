@@ -247,8 +247,28 @@ export const getRFQBids = async (req, res) => {
       return res.status(403).json({ message: "Not authorized to view bids" });
     }
 
-    const bids = await BID.find({ rfqId }).populate("artisanId", "name role"); // provider info
-    return res.json(bids);
+    const bids = await BID.find({ rfqId })
+      .populate("artisanId", "fullname email role")
+      .sort({ bidAmount: 1 }); // Sort by lowest bid first
+
+    // Calculate bid statistics
+    const stats = {
+      totalBids: bids.length,
+      pendingBids: bids.filter((b) => b.status === "pending").length,
+      acceptedBids: bids.filter((b) => b.status === "accepted").length,
+      rejectedBids: bids.filter((b) => b.status === "rejected").length,
+    };
+
+    if (bids.length > 0) {
+      const amounts = bids.map((b) => b.bidAmount);
+      stats.minBid = Math.min(...amounts);
+      stats.maxBid = Math.max(...amounts);
+      stats.avgBid = (
+        amounts.reduce((a, b) => a + b, 0) / amounts.length
+      ).toFixed(2);
+    }
+
+    return res.json({ bids, stats });
   } catch (err) {
     console.error("getRFQBids:", err);
     return res.status(500).json({ message: "Server error" });
